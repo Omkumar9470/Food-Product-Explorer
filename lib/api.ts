@@ -166,9 +166,12 @@ export async function getProducts(
 export async function getProductById(id: string): Promise<Product | null> {
   try {
     const response = await fetch(`/api/product/${id}`);
+
+    if (!response.ok) return null;
+
     const data = await response.json();
 
-    if (data.status !== 1 || !data.product) return null;
+    if (!data || data.status !== 1 || !data.product) return null;
 
     return mapProduct({ ...data.product, code: id });
   } catch (error) {

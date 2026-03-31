@@ -61,23 +61,27 @@ export default function HomePage() {
   }, [selectedCategory, selectedSort, searchQuery, barcodeQuery]);
 
   const handleLoadMore = useCallback(async () => {
-    const nextPage = currentPage + 1;
+  const nextPage = currentPage + 1;
+  setIsLoading(true);
 
-    const { products: newProducts, total } = await getProducts(
-      nextPage,
-      12,
-      selectedCategory === 'all' ? undefined : selectedCategory,
-      selectedSort || undefined,
-      searchQuery,
-      barcodeQuery
-    );
+  const { products: newProducts, total } = await getProducts(
+    nextPage,
+    12,
+    selectedCategory === 'all' ? undefined : selectedCategory,
+    selectedSort || undefined,
+    searchQuery,
+    barcodeQuery
+  );
 
-    setProducts((prev) => [...prev, ...newProducts]);
-    setCurrentPage(nextPage);
+  setProducts((prev) => {
+    const updated = [...prev, ...newProducts];
+    setHasMore(updated.length < total);
+    return updated;
+  });
 
-    const totalLoaded = products.length + newProducts.length;
-    setHasMore(totalLoaded < total);
-  }, [currentPage, selectedCategory, selectedSort, searchQuery, barcodeQuery, products.length]);
+  setCurrentPage(nextPage);
+  setIsLoading(false);
+}, [currentPage, selectedCategory, selectedSort, searchQuery, barcodeQuery]);
 
   const handleResetFilters = useCallback(() => {
     setSelectedCategory('all');

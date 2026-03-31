@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
   request: Request,
-  { params }: { params: { barcode: string } }
+  { params }: { params: Promise<{ barcode: string }> }
 ) {
+  const { barcode } = await params;
+
   try {
-    const url = `https://world.openfoodfacts.org/api/v0/product/${params.barcode}.json`;
+    const url = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
 
     const response = await fetch(url, {
       headers: { 'User-Agent': 'FoodExplorer/1.0' },
