@@ -1,146 +1,87 @@
 import { Product, NutritionValues } from '@/types';
 
-// Mock categories
-const CATEGORIES = ['Beverages', 'Dairy', 'Snacks', 'Cereals', 'Fruits'];
+// Helper: maps raw OpenFoodFacts product to our Product type
+function mapProduct(item: any): Product | null {
+  if (!item || !item.code) return null;
 
-// Mock nutrition values
-const mockNutrition: NutritionValues = {
-  energy: '250 kcal',
-  fat: '5g',
-  saturatedFat: '2g',
-  carbohydrates: '45g',
-  sugars: '12g',
-  fiber: '3g',
-  protein: '8g',
-  salt: '0.5g',
-};
+  const nutriments = item.nutriments || {};
 
-// Mock products
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'Organic Whole Milk',
-    category: 'Dairy',
-    brand: 'Pure Valley',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748390',
-    nutritionGrade: 'A',
-    ingredients: 'Whole milk, vitamin D, calcium',
-    shortIngredients: 'Whole milk, vitamin D, calcium',
-    nutritionValues: mockNutrition,
-    labels: ['Organic', 'Natural'],
-  },
-  {
-    id: '2',
-    name: 'Almond Butter Granola',
-    category: 'Snacks',
-    brand: 'Nature\'s Best',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748391',
-    nutritionGrade: 'B',
-    ingredients: 'Oats, almonds, honey, coconut oil, sea salt',
-    shortIngredients: 'Oats, almonds, honey, coconut oil...',
-    nutritionValues: { ...mockNutrition, protein: '12g' },
-    labels: ['Vegan', 'Gluten-Free'],
-  },
-  {
-    id: '3',
-    name: 'Fresh Orange Juice',
-    category: 'Beverages',
-    brand: 'Sunny Citrus',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748392',
-    nutritionGrade: 'A',
-    ingredients: '100% pure orange juice, vitamin C',
-    shortIngredients: '100% pure orange juice, vitamin C',
-    nutritionValues: { ...mockNutrition, energy: '110 kcal', sugars: '9g' },
-    labels: ['Natural', 'No Added Sugar'],
-  },
-  {
-    id: '4',
-    name: 'Whole Wheat Cereal',
-    category: 'Cereals',
-    brand: 'Grain Power',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748393',
-    nutritionGrade: 'B',
-    ingredients: 'Whole wheat, malted barley, honey, salt',
-    shortIngredients: 'Whole wheat, malted barley, honey, salt',
-    nutritionValues: { ...mockNutrition, fiber: '6g' },
-    labels: ['High Fiber', 'Whole Grain'],
-  },
-  {
-    id: '5',
-    name: 'Protein Energy Bar',
-    category: 'Snacks',
-    brand: 'FitNutrition',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748394',
-    nutritionGrade: 'B',
-    ingredients: 'Whey protein, oats, almonds, dark chocolate, stevia',
-    shortIngredients: 'Whey protein, oats, almonds, dark chocolate...',
-    nutritionValues: { ...mockNutrition, protein: '20g', sugars: '3g' },
-    labels: ['High Protein', 'Low Sugar'],
-  },
-  {
-    id: '6',
-    name: 'Greek Yogurt Plain',
-    category: 'Dairy',
-    brand: 'Hellas Dairy',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748395',
-    nutritionGrade: 'A',
-    ingredients: 'Milk, live cultures',
-    shortIngredients: 'Milk, live cultures',
-    nutritionValues: { ...mockNutrition, protein: '10g', sugars: '5g' },
-    labels: ['Probiotic', 'No Added Sugar'],
-  },
-  {
-    id: '7',
-    name: 'Organic Chia Seed Mix',
-    category: 'Snacks',
-    brand: 'SuperSeeds',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748396',
-    nutritionGrade: 'A',
-    ingredients: 'Chia seeds, pumpkin seeds, sunflower seeds, salt',
-    shortIngredients: 'Chia seeds, pumpkin seeds, sunflower seeds...',
-    nutritionValues: { ...mockNutrition, fiber: '10g', protein: '9g' },
-    labels: ['Organic', 'Vegan', 'Gluten-Free'],
-  },
-  {
-    id: '8',
-    name: 'Fresh Apple',
-    category: 'Fruits',
-    brand: 'Nature\'s Harvest',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748397',
-    nutritionGrade: 'A',
-    ingredients: '100% apple',
-    shortIngredients: '100% apple',
-    nutritionValues: { ...mockNutrition, energy: '52 kcal', fiber: '2.4g', sugars: '10g' },
-    labels: ['Natural', 'Organic'],
-  },
-  {
-    id: '9',
-    name: 'Dark Chocolate 70%',
-    category: 'Snacks',
-    brand: 'Cocoa Excellence',
-    image: '/placeholder-product.jpg',
-    barcode: '8711200748398',
-    nutritionGrade: 'C',
-    ingredients: 'Cocoa solids, cocoa butter, sugar, vanilla',
-    shortIngredients: 'Cocoa solids, cocoa butter, sugar, vanilla',
-    nutritionValues: { ...mockNutrition, energy: '598 kcal', fat: '35g' },
-    labels: ['Fair Trade', 'Vegan'],
-  },
-];
+  const nutritionValues: NutritionValues = {
+    energy: nutriments['energy-kcal_100g'] ? `${nutriments['energy-kcal_100g']} kcal` : 'N/A',
+    fat: nutriments['fat_100g'] ? `${nutriments['fat_100g']}g` : 'N/A',
+    saturatedFat: nutriments['saturated-fat_100g'] ? `${nutriments['saturated-fat_100g']}g` : 'N/A',
+    carbohydrates: nutriments['carbohydrates_100g'] ? `${nutriments['carbohydrates_100g']}g` : 'N/A',
+    sugars: nutriments['sugars_100g'] ? `${nutriments['sugars_100g']}g` : 'N/A',
+    fiber: nutriments['fiber_100g'] ? `${nutriments['fiber_100g']}g` : 'N/A',
+    protein: nutriments['proteins_100g'] ? `${nutriments['proteins_100g']}g` : 'N/A',
+    salt: nutriments['salt_100g'] ? `${nutriments['salt_100g']}g` : 'N/A',
+  };
+
+  const ingredients = item.ingredients_text || '';
+  const shortIngredients =
+    ingredients.length > 100 ? ingredients.slice(0, 100) + '...' : ingredients;
+
+  const gradeMap: Record<string, 'A' | 'B' | 'C' | 'D' | 'E'> = {
+    a: 'A', b: 'B', c: 'C', d: 'D', e: 'E',
+  };
+  const rawGrade = (item.nutrition_grades || item.nutriscore_grade || '').toLowerCase();
+  const nutritionGrade = gradeMap[rawGrade] || 'E';
+
+  const labels = item.labels_tags
+    ? item.labels_tags
+        .map((l: string) =>
+          l.replace('en:', '').replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+        )
+        .slice(0, 5)
+    : [];
+
+  const categoryTags = item.categories_tags || [];
+  const category =
+    categoryTags.length > 0
+      ? categoryTags[0]
+          .replace('en:', '')
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (c: string) => c.toUpperCase())
+      : 'Uncategorized';
+
+  return {
+    id: item.code,
+    name: item.product_name || item.product_name_en || 'Unknown Product',
+    category,
+    brand: item.brands || 'Unknown Brand',
+    image: item.image_front_url || item.image_url || '/placeholder-product.jpg',
+    barcode: item.code,
+    nutritionGrade,
+    ingredients,
+    shortIngredients,
+    nutritionValues,
+    labels,
+  };
+}
 
 export async function getCategories(): Promise<string[]> {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(CATEGORIES), 300);
-  });
+  try {
+    const response = await fetch('/api/categories');
+    const data = await response.json();
+
+    // Safety check — if tags doesn't exist fall back immediately
+    if (!data || !data.tags || !Array.isArray(data.tags)) {
+      return ['Beverages', 'Dairy', 'Snacks', 'Cereals', 'Fruits'];
+    }
+
+    const categories = data.tags
+      .filter((tag: any) => tag.name && !tag.name.startsWith('('))
+      .sort((a: any, b: any) => b.products - a.products)
+      .slice(0, 20)
+      .map((tag: any) => tag.name);
+
+    return categories.length > 0
+      ? categories
+      : ['Beverages', 'Dairy', 'Snacks', 'Cereals', 'Fruits'];
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return ['Beverages', 'Dairy', 'Snacks', 'Cereals', 'Fruits'];
+  }
 }
 
 export async function getProducts(
@@ -151,75 +92,103 @@ export async function getProducts(
   searchQuery?: string,
   barcodeQuery?: string
 ): Promise<{ products: Product[]; total: number }> {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let filtered = [...MOCK_PRODUCTS];
+  try {
+    if (barcodeQuery) {
+      const product = await getProductById(barcodeQuery);
+      return {
+        products: product ? [product] : [],
+        total: product ? 1 : 0,
+      };
+    }
 
-      // Filter by category
-      if (category && category !== 'all') {
-        filtered = filtered.filter((p) => p.category === category);
-      }
+    const sortMap: Record<string, string> = {
+      'name-asc': 'product_name',
+      'name-desc': 'product_name',
+      'grade-best': 'nutriscore_score',
+      'grade-worst': 'nutriscore_score',
+    };
+    const apiSort = sortBy ? sortMap[sortBy] : 'unique_scans_n';
 
-      // Filter by name search
-      if (searchQuery) {
-        filtered = filtered.filter((p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
+    let url = '';
 
-      // Filter by barcode
-      if (barcodeQuery) {
-        filtered = filtered.filter((p) =>
-          p.barcode.includes(barcodeQuery)
-        );
-      }
+    if (category) {
+      const encodedCategory = encodeURIComponent(
+        category.toLowerCase().replace(/ /g, '-')
+      );
+      url = `/api/category/${encodedCategory}?page=${page}`;
+    } else {
+      const searchTerm = searchQuery || '';
+      url = `/api/products?search_terms=${encodeURIComponent(searchTerm)}&page=${page}&page_size=${limit}&sort_by=${apiSort}`;
+    }
 
-      // Sort
-      if (sortBy === 'name-asc') {
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (sortBy === 'name-desc') {
-        filtered.sort((a, b) => b.name.localeCompare(a.name));
-      } else if (sortBy === 'grade-best') {
-        const gradeOrder = { A: 0, B: 1, C: 2, D: 3, E: 4 };
-        filtered.sort((a, b) => gradeOrder[a.nutritionGrade] - gradeOrder[b.nutritionGrade]);
-      } else if (sortBy === 'grade-worst') {
-        const gradeOrder = { A: 0, B: 1, C: 2, D: 3, E: 4 };
-        filtered.sort((a, b) => gradeOrder[b.nutritionGrade] - gradeOrder[a.nutritionGrade]);
-      }
+    const response = await fetch(url);
+    const data = await response.json();
 
-      const start = (page - 1) * limit;
-      const end = start + limit;
-      const paginated = filtered.slice(start, end);
+    let products = (data.products || [])
+      .map(mapProduct)
+      .filter(
+        (p: Product | null): p is Product =>
+          p !== null && p.name !== 'Unknown Product'
+      );
 
-      resolve({
-        products: paginated,
-        total: filtered.length,
-      });
-    }, 300);
-  });
+    if (category && searchQuery) {
+      products = products.filter((p: Product) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (sortBy === 'name-asc') {
+      products.sort((a: Product, b: Product) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'name-desc') {
+      products.sort((a: Product, b: Product) => b.name.localeCompare(a.name));
+    } else if (sortBy === 'grade-best') {
+      const gradeOrder: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4 };
+      products.sort(
+        (a: Product, b: Product) =>
+          gradeOrder[a.nutritionGrade] - gradeOrder[b.nutritionGrade]
+      );
+    } else if (sortBy === 'grade-worst') {
+      const gradeOrder: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4 };
+      products.sort(
+        (a: Product, b: Product) =>
+          gradeOrder[b.nutritionGrade] - gradeOrder[a.nutritionGrade]
+      );
+    }
+
+    const total = data.count || products.length;
+    return { products, total };
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+    return { products: [], total: 0 };
+  }
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const product = MOCK_PRODUCTS.find((p) => p.id === id);
-      resolve(product || null);
-    }, 200);
-  });
+  try {
+    const response = await fetch(`/api/product/${id}`);
+    const data = await response.json();
+
+    if (data.status !== 1 || !data.product) return null;
+
+    return mapProduct({ ...data.product, code: id });
+  } catch (error) {
+    console.error('Failed to fetch product:', error);
+    return null;
+  }
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const results = MOCK_PRODUCTS.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.barcode.includes(query)
-      );
-      resolve(results);
-    }, 200);
-  });
+  try {
+    const response = await fetch(
+      `/api/products?search_terms=${encodeURIComponent(query)}&page_size=10`
+    );
+    const data = await response.json();
+
+    return (data.products || [])
+      .map(mapProduct)
+      .filter((p: Product | null): p is Product => p !== null);
+  } catch (error) {
+    console.error('Failed to search products:', error);
+    return [];
+  }
 }

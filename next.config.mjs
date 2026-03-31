@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.openfoodfacts.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.openfoodfacts.org',
+      },
+    ],
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
