@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/lib/cart-context';
 import Link from 'next/link';
 import Image from 'next/image';
+import { toast } from 'sonner' 
 
 interface ProductCardProps {
   product: Product;
@@ -32,10 +33,13 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    addItem(product);
-  };
-
+  e.preventDefault();
+  addItem(product);
+  toast.success(`${product.name} added to cart!`, {
+    description: 'View your cart to see all items.',
+    duration: 3000,
+  });
+};
   return (
     <Link href={`/product/${product.id}`}>
       <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer">
